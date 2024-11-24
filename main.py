@@ -42,7 +42,7 @@ async def main():
     try:
         await set_commands(bot)  # Установка пользовательских команд в боте
         await startup_notify(bot)  # Уведомление админов о запуске бота
-        await scheduler_start(bot)  # Подключение шедулеров
+        # await scheduler_start(bot)  # Подключение шедулеров
 
         bot_logger.warning("BOT WAS STARTED")
         print(colorama.Fore.LIGHTYELLOW_EX + f"~~~~~ Bot was started - @{(await bot.get_me()).username} ~~~~~")
