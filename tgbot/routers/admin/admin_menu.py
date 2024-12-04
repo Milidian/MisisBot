@@ -1,17 +1,16 @@
 # - *- coding: utf- 8 - *-
-from aiogram import Router, Bot, F
-from aiogram.filters import StateFilter
-from aiogram.types import Message, CallbackQuery, ReactionTypeEmoji
+import os
 
-from tgbot.database.db_document import Documentx
+import aiofiles
+from aiogram import Router, Bot
+from aiogram.filters import Command
+from aiogram.types import Message, FSInputFile
+from aiogram.utils.media_group import MediaGroupBuilder
+
+from tgbot.data.config import PATH_DATABASE, PATH_LOGS
 from tgbot.database.db_users import UserModel
-from tgbot.keyboards.inline_admin import (document_cancel_add_finl, document_edit_cancel_finl,
-                                          document_edit_delete_confirm_finl)
-from tgbot.keyboards.inline_main import document_edit_finl
-from tgbot.keyboards.inline_page import document_open_finl
-from tgbot.utils.const_functions import del_message
+from tgbot.utils.const_functions import get_date
 from tgbot.utils.misc.bot_models import FSM, ARS
-from tgbot.utils.misc_functions import convert_text_ask
 
 router = Router(name=__name__)
 
