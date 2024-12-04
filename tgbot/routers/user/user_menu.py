@@ -8,7 +8,7 @@ from tgbot.database.db_document import Documentx
 from tgbot.database.db_users import UserModel
 from tgbot.keyboards.inline_admin import support_cancel_finl, support_admin_answer_finl
 from tgbot.keyboards.inline_page import document_open_finl
-from tgbot.utils.const_functions import send_admins
+from tgbot.utils.const_functions import send_admins, del_message
 from tgbot.utils.misc.bot_models import FSM, ARS
 from tgbot.utils.misc_functions import convert_text_question
 
@@ -45,6 +45,8 @@ async def user_support(message: Message, bot: Bot, state: FSM, arSession: ARS, U
         reply_markup=support_cancel_finl()
     )
 
+    await state.update_data(here_cache_message=cache_message)
+
 
 #################################### СТЕЙТЫ ####################################
 # Принятие текста поддержке
@@ -56,10 +58,12 @@ async def user_support_question(message: Message, bot: Bot, state: FSM, arSessio
             "❕ Длина вопроса не должна превышать 2000 символов"
         )
 
-    await bot.delete_message(
-        chat_id=User.user_id,
-        message_id=message.message_id - 1
-    )
+    try:
+        cache_message: Message = (await state.get_data())['here_cache_message']
+    except:
+        ...
+    else:
+        await del_message(cache_message)
 
     await message.answer(
         "<b>✅ Вопрос успешно отправлен.\n</b>"
