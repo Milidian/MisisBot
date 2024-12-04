@@ -64,4 +64,4 @@ async def admin_logs_clear(message: Message, bot: Bot, state: FSM, arSession: AR
         async with aiofiles.open("tgbot/data/sv_log_out.log", "w") as file:
             await file.write(f"{get_date()} | LOGS WAS CLEAR")
 
-    await message.answer("<b>🖨 The logs have been cleared</b>")
+    await message.answer("<b>🖨 Логи будут удалены</b>")
