@@ -7,7 +7,7 @@ from tgbot.utils.const_functions import ikb
 
 ########################### РЕДАКТИРОВАНИЕ ДОКУМЕНТА ###########################
 # Отмена редактирования
-def document_cancel_edit_finl(document_id: int)  -> InlineKeyboardMarkup:
+def document_edit_cancel_finl(document_id: int)  -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(
@@ -18,12 +18,12 @@ def document_cancel_edit_finl(document_id: int)  -> InlineKeyboardMarkup:
 
 
 # Подтверждение удаления документа
-def delete_document_confirm_finl(document_id: int) -> InlineKeyboardMarkup:
+def document_edit_delete_confirm_finl(document_id: int) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(
-        ikb("Подтвердить", data=f"delete_confirm:{document_id}"),
-        ikb("🔙 Назад", data=f"document_open:{document_id}")
+        ikb("Подтвердить", data=f"document_delete_confirm:{document_id}"),
+        ikb("🔙 Назад", data=f"document_open:{document_id}:0")
     )
 
     return keyboard.as_markup()

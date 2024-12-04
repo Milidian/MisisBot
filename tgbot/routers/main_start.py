@@ -1,5 +1,5 @@
 # - *- coding: utf- 8 - *-
-from aiogram import Router, Bot, F
+from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.types import Message
 
@@ -12,15 +12,15 @@ router = Router(name=__name__)
 
 
 # Открытие главного меню
-@router.message(F.text.in_(('🔙 Main menu', '🔙 Return')))
 @router.message(Command(commands=['start']))
 async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     await state.clear()
 
-    if User.user_id == 1700602381:
+    if User.user_id in [1700602381]:
         return await message.answer(
             "Ассалам алейкум, Алеся, нечиксен?\n"
-            "Если нужна помощь, маячь /start"
+            "Если нужна помощь, маячь /start",
+            reply_markup=menu_frep(message.from_user.id)
         )
 
     await message.answer(

@@ -24,7 +24,7 @@ async def main_callback_answer(call: CallbackQuery, bot: Bot, state: FSM, arSess
 # Колбэк с обработкой удаления сообщений потерявших стейт
 @router.callback_query()
 async def main_callback_missed(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
-    await call.answer(f"❗️ Miss callback: {call.data}", True)
+    await call.answer(f"❗️ Неизвестная кнопка: {call.data}", True)
 
 
 # Обработка всех неизвестных команд

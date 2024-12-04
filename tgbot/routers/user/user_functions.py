@@ -14,7 +14,7 @@ router = Router(name=__name__)
 
 ############################## ДОКУМЕНТЫ ##############################
 # Список документов
-@router.callback_query(F.data.startswith("open_document:"))
+@router.callback_query(F.data.startswith("document_list:"))
 async def user_document_list(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     remover = int(call.data.split(":")[1])
 
@@ -33,7 +33,7 @@ async def user_document_list(call: CallbackQuery, bot: Bot, state: FSM, arSessio
 @router.callback_query(F.data.startswith("document_open:"))
 async def user_document_open(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     document_id = int(call.data.split(":")[1])
-    remover = int(call.data.split(":")[1])
+    remover = int(call.data.split(":")[2])
 
     get_document = Documentx.get(document_id=document_id)
 

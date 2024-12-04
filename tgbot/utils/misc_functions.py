@@ -8,7 +8,7 @@ from tgbot.utils.const_functions import get_date, send_admins, ded, convert_date
 
 
 # Вопрос для администрации
-def convert_question(text: str, user_id: int):
+def convert_text_question(text: str, user_id: int) -> str:
     get_user = Userx.get(user_id=user_id)
 
     return ded(f"""
@@ -21,7 +21,7 @@ def convert_question(text: str, user_id: int):
 
 
 # Ответ для пользователя
-def convert_ask(text: str):
+def convert_text_ask(text: str) -> str:
     return ded(f"""
         <b>Ответ от администратора</b>
         ➖➖➖➖➖➖➖➖➖➖

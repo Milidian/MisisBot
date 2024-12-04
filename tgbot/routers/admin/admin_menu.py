@@ -1,47 +1,47 @@
 # - *- coding: utf- 8 - *-
-
 from aiogram import Router, Bot, F
 from aiogram.filters import StateFilter
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReactionTypeEmoji
 
 from tgbot.database.db_document import Documentx
 from tgbot.database.db_users import UserModel
-from tgbot.keyboards.inline_admin import (document_cancel_add_finl, document_cancel_edit_finl,
-                                          delete_document_confirm_finl)
+from tgbot.keyboards.inline_admin import (document_cancel_add_finl, document_edit_cancel_finl,
+                                          document_edit_delete_confirm_finl)
 from tgbot.keyboards.inline_main import document_edit_finl
 from tgbot.keyboards.inline_page import document_open_finl
+from tgbot.utils.const_functions import del_message
 from tgbot.utils.misc.bot_models import FSM, ARS
-from tgbot.utils.misc_functions import convert_ask
+from tgbot.utils.misc_functions import convert_text_ask
 
 router = Router(name=__name__)
 
 
 ############################## ИЗМЕНЕНИЕ ДОКУМЕНТА #############################
 # Изменение текста документа
-@router.callback_query(F.data.startswith("edit_text_document"))
+@router.callback_query(F.data.startswith("document_edit_text:"))
 async def admin_document_edit(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     document_id = int(call.data.split(":")[1])
 
-    await state.set_state("here_edit_text_document")
+    await state.set_state("here_document_edit_text")
     await state.update_data(here_document_id=document_id)
 
     await call.message.edit_text(
         "<b>✏️Введите новую информацию для документа</b>\n"
         "❕ Информация не должна превышать 4000 символов",
-        reply_markup=document_cancel_edit_finl(document_id)
+        reply_markup=document_edit_cancel_finl(document_id)
     )
 
 
 # Принятие нового текста
-@router.message(StateFilter("here_edit_text_document"))
+@router.message(StateFilter("here_document_edit_text"))
 async def admin_document_edit_get(message: Message, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
-    document_id = int((await state.get_data())['here_document_id'])
+    document_id = (await state.get_data())['here_document_id']
 
     if len(message.text) > 4000:
         return await message.answer(
             "<b>❌ Превышен лимит символов\n</b>"
             "❕ Информация документа не должна превышать 4000 символов",
-            reply_markup=document_cancel_edit_finl(document_id)
+            reply_markup=document_edit_cancel_finl(document_id)
         )
 
     document_file = None
@@ -71,22 +71,22 @@ async def admin_document_edit_get(message: Message, bot: Bot, state: FSM, arSess
 
 
 # Изменение названия кнопки
-@router.callback_query(F.data.startswith("edit_name_document:"))
-async def admin_edit_name_document(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
+@router.callback_query(F.data.startswith("document_edit_name:"))
+async def admin_document_edit_name(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     document_id = int(call.data.split(":")[1])
 
-    await state.set_state("here_edit_name_document")
+    await state.set_state("here_document_edit_name")
     await state.update_data(here_document_id=document_id)
 
     await call.message.edit_text(
-        "<b>✏️Введите новое название для документа</b>\n"
+        "<b>✏️ Введите новое название для документа</b>\n"
         "❕ Название не должно превышать 50 символов",
-        reply_markup=document_cancel_edit_finl(document_id)
+        reply_markup=document_edit_cancel_finl(document_id)
     )
 
 
 # Принятие нового названия кнопки
-@router.message(StateFilter("here_edit_name_document"))
+@router.message(StateFilter("here_document_edit_name"))
 async def admin_document_edit_name_get(message: Message, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     document_id = int((await state.get_data())['here_document_id'])
 
@@ -94,7 +94,7 @@ async def admin_document_edit_name_get(message: Message, bot: Bot, state: FSM, a
         return message.answer(
             "<b>❌ Превышен лимит символов</b>\n"
             "❕ Длина документа не должна превышать 50 символов",
-            reply_markup=document_cancel_edit_finl(document_id)
+            reply_markup=document_edit_cancel_finl(document_id)
         )
 
     Documentx.update(
@@ -107,6 +107,31 @@ async def admin_document_edit_name_get(message: Message, bot: Bot, state: FSM, a
     await message.answer(
         get_document.document_info,
         reply_markup=document_edit_finl(document_id, User.user_id, 0)
+    )
+
+
+# Удаление документа
+@router.callback_query(F.data.startswith("document_edit_delete:"))
+async def admin_document_delete(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
+    document_id = int(call.data.split(":")[1])
+
+    await call.message.edit_text(
+        "❗️ Вы уверены что хотите удалить этот документ?",
+        reply_markup=document_edit_delete_confirm_finl(document_id)
+    )
+
+
+# Подтверждение удаления документа
+@router.callback_query(F.data.startswith("document_delete_confirm"))
+async def admin_document_delete_confirm(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
+    document_id = int(call.data.split(":")[1])
+
+    Documentx.delete(document_id=document_id)
+
+    await call.answer("<b>✅ Документ успешно удалён</b>")
+    await call.message.edit_text(
+        "<b>📔 Выберите документ для информации о нём</b>",
+        reply_markup=document_open_finl(call.from_user.id, 0)
     )
 
 
@@ -180,32 +205,6 @@ async def admin_document_add(call: CallbackQuery, bot: Bot, state: FSM, arSessio
     )
 
 
-############################## УДАЛЕНИЕ ДОКУМЕНТА ##############################
-# Удаление документа
-@router.callback_query(F.data.startswith("delete_document"))
-async def admin_document_delete(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
-    document_id = int(call.data.split(":")[1])
-
-    await call.message.edit_text(
-        "❗️ Вы уверены что хотите удалить этот документ?",
-        reply_markup=delete_document_confirm_finl(document_id)
-    )
-
-
-# Подтверждение удаления документа
-@router.callback_query(F.data.startswith("delete_confirm"))
-async def admin_document_delete(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
-    document_id = int(call.data.split(":")[1])
-
-    Documentx.delete(document_id=document_id)
-
-    await call.answer("✅ Документ успешно удалён")
-    await call.message.edit_text(
-        "<b>📔 Выберите документ для информации о нём</b>",
-        reply_markup=document_open_finl(call.from_user.id, 0)
-    )
-
-
 ################################## ПОДДЕРЖКА ###################################
 # Ответ на вопрос в поддержку
 @router.callback_query(F.data.startswith("support_admin_answer"))
@@ -215,15 +214,13 @@ async def admin_support_cancel(call: CallbackQuery, bot: Bot, state: FSM, arSess
     await state.set_state("here_support_ask")
     await state.update_data(here_user_id=user_id)
 
-    await bot.delete_message(
-        chat_id=User.user_id,
-        message_id=call.message.message_id
-    )
-
-    await call.message.answer(
+    cache_message = await call.message.answer(
         "<b>📝 Введите ответ на вопрос</b>\n"
         "❕ Длина ответа не должна превышать 2000 символов",
     )
+    await call.answer()
+
+    await state.update_data(here_cache_message=cache_message)
 
 
 # Принятие ответа на вопрос
@@ -235,18 +232,19 @@ async def admin_support_ask(message: Message, bot: Bot, state: FSM, arSession: A
             "❕ Ответ не должен превышать 2000 символов"
         )
 
-    get_user_id = (await state.get_data())['here_user_id']
+    user_id = (await state.get_data())['here_user_id']
 
-    await state.clear()
-
-    await bot.delete_message(
-        chat_id=User.user_id,
-        message_id=message.message_id - 1
-    )
+    try:
+        cache_message: Message = (await state.get_data())['here_cache_message']
+    except:
+        ...
+    else:
+        await del_message(cache_message)
 
     await bot.send_message(
-        chat_id=get_user_id,
-        text=convert_ask(message.text)
+        chat_id=user_id,
+        text=convert_text_ask(message.text)
     )
 
-    await message.answer("✅ Ответ успешно отправлен")
+    await message.react(reaction=[ReactionTypeEmoji(emoji="👌")])
+    await state.clear()

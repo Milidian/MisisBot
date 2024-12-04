@@ -10,7 +10,7 @@ from tgbot.keyboards.inline_admin import support_cancel_finl, support_admin_answ
 from tgbot.keyboards.inline_page import document_open_finl
 from tgbot.utils.const_functions import send_admins
 from tgbot.utils.misc.bot_models import FSM, ARS
-from tgbot.utils.misc_functions import convert_question
+from tgbot.utils.misc_functions import convert_text_question
 
 router = Router(name=__name__)
 
@@ -39,9 +39,9 @@ async def user_support(message: Message, bot: Bot, state: FSM, arSession: ARS, U
 
     await state.set_state("here_support_question")
 
-    await message.answer(
+    cache_message = await message.answer(
         "<b>☎️ Введите свой вопрос одним сообщением</b>\n"
-             "❕ Длина вопроса не должна превышать 2000 символов",
+        "❕ Длина вопроса не должна превышать 2000 символов",
         reply_markup=support_cancel_finl()
     )
 
@@ -56,8 +56,6 @@ async def user_support_question(message: Message, bot: Bot, state: FSM, arSessio
             "❕ Длина вопроса не должна превышать 2000 символов"
         )
 
-    await state.clear()
-
     await bot.delete_message(
         chat_id=User.user_id,
         message_id=message.message_id - 1
@@ -70,6 +68,8 @@ async def user_support_question(message: Message, bot: Bot, state: FSM, arSessio
 
     await send_admins(
         bot=bot,
-        text=convert_question(message.text, User.user_id),
+        text=convert_text_question(message.text, User.user_id),
         markup=support_admin_answer_finl(User.user_id)
     )
+
+    await state.clear()
