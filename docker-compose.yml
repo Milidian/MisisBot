@@ -1,15 +1,10 @@
+version: '3.8'
 services:
   misis-inquiry:
     container_name: misis-inquiry
-    build: ./
-    restart: always
-    env_file:
-      - path: ./.env
-        required: false
-      - path: ./.env.development.local
-        required: false
-    environment:
-      - PORT=8000
-    volumes:
-      - ./data:/usr/src/app/tgbot:rw
-      #- ./media:/usr/src/app/media:rw
+    image: misisbot
+    stop_signal: SIGINT
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
