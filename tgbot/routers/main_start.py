@@ -16,13 +16,6 @@ router = Router(name=__name__)
 async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS, User: UserModel):
     await state.clear()
 
-    if User.user_id in [1700602381]:
-        return await message.answer(
-            "Ассалам алейкум, Алеся, нечиксен?\n"
-            "Если нужна помощь, маячь /start",
-            reply_markup=menu_frep(message.from_user.id)
-        )
-
     await message.answer(
         ded(f"""
             <b>👋 Привет, дорогой друг!</b>
