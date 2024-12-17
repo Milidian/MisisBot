@@ -2,7 +2,7 @@
 from aiogram import Dispatcher, F
 
 from tgbot.routers import main_errors, main_missed, main_start
-from tgbot.routers.admin import admin_menu, admin_functions
+from tgbot.routers.admin import admin_menu, admin_function
 from tgbot.routers.user import user_menu, user_functions
 from tgbot.utils.misc.bot_filters import IsAdmin
 
@@ -17,7 +17,7 @@ def register_all_routers(dp: Dispatcher):
     user_functions.router.message.filter(F.chat.type == "private")
     
     admin_menu.router.message.filter(F.chat.type == "private", IsAdmin())
-    admin_functions.router.message.filter(F.chat.type == "private, IsAdmin())
+    admin_function.router.message.filter(F.chat.type == "private, IsAdmin())
 
     main_missed.router.message.filter(F.chat.type == "private")
 
@@ -30,7 +30,7 @@ def register_all_routers(dp: Dispatcher):
     dp.include_router(user_functions.router)  # Юзер роутер
     
     dp.include_router(admin_menu.router)  # Админ роутер
-    dp.include_router(admin_functions.router)  # Адмен роутер
+    dp.include_router(admin_function.router)  # Адмен роутер
 
     # Подключение обязательных роутеров
     dp.include_router(main_missed.router)  # Роутер пропущенных апдейтов
