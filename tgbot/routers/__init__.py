@@ -17,7 +17,7 @@ def register_all_routers(dp: Dispatcher):
     user_functions.router.message.filter(F.chat.type == "private")
     
     admin_menu.router.message.filter(F.chat.type == "private", IsAdmin())
-    admin_function.router.message.filter(F.chat.type == "private, IsAdmin())
+    admin_function.router.message.filter(F.chat.type == "private", IsAdmin())
 
     main_missed.router.message.filter(F.chat.type == "private")
 
